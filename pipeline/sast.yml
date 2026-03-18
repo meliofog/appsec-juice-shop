@@ -1,8 +1,8 @@
-# This workflow integrates Static Application Security Testing (SAST) using Semgrep.
-# It identifies OWASP Top 10 vulnerabilities, specifically targeting issues 
-# like DOM XSS and unsafe Angular methods discovered in this project.
+# This workflow integrates Static Application Security Testing (SAST) and 
+# Software Composition Analysis (SCA). It identifies OWASP Top 10 vulnerabilities 
+# and audits third-party dependencies.
 
-name: "SAST - Semgrep Security Scan"
+name: "Security Pipeline - SAST & SCA"
 
 on:
   push:
@@ -13,36 +13,43 @@ on:
     - cron: '30 18 * * 1' # Every Monday at 18:30 UTC
 
 jobs:
-  semgrep:
-    name: Semgrep Analysis
+  security_scan:
+    name: Semgrep & Dependency Audit
     runs-on: ubuntu-latest
     
     permissions:
-      contents: read       # To checkout the code
-      security-events: write # To upload the SARIF results
-      actions: read        # useful for internal tracking
+      contents: read       
+      security-events: write 
+      actions: read        
 
-    # Condition: Run if it's not a push, OR if it is a push and doesn't have [skip ci]
     if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js (Current LTS 24)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
+      # --- Phase 1: Dependency Scan (SCA) ---
+      - name: Run Dependency Audit (SCA)
+        run: |
+          chmod +x ./pipeline/scan-deps.sh
+          ./pipeline/scan-deps.sh
+
+      # --- Phase 2: Static Analysis (SAST) ---
       - name: Run Semgrep (SAST)
         uses: semgrep/semgrep-action@v1
         with:
-          config: >-
-            p/javascript
-            p/typescript
-            p/owasp-top-10
-            p/angularjs
-          generateSarif: "1"
+          args: >-
+            semgrep scan 
+            --config p/javascript 
+            --config p/typescript 
+            --config p/owasp-top-ten 
+            --sarif 
+            --output semgrep.sarif
 
       - name: Upload SARIF results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4  
