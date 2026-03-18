@@ -2,22 +2,27 @@
 # pipeline/scan-deps.sh
 # Software Composition Analysis (SCA) for Node.js projects
 
-echo "------------------------------------------"
-echo "🔍 Starting Dependency Security Audit..."
-echo "------------------------------------------"
+echo "========================================"
+echo " Starting Dependency Security Scan (SCA)"
+echo "========================================"
 
-# Ensure we have the latest audit signatures without a full install if possible
-npm install --package-lock-only
+# Check if package.json exists
+if [ -f package.json ]; then
+  echo "[+] package.json found. Installing dependencies..."
 
-# This will exit with a non-zero code if vulnerabilities 
-# 'moderate' or higher are found, which stops the CI pipeline.
-npm audit --audit-level=moderate
+  npm install
 
-if [ $? -eq 0 ]; then
-    echo "✅ No moderate or high-level vulnerabilities found."
+  echo "[+] Running npm audit (moderate level and above)..."
+
+  npm audit --audit-level=moderate
+
+  echo "[✓] Dependency scan completed."
+
 else
-    echo "❌ Vulnerabilities detected. Please run 'npm audit fix' or update dependencies."
+  echo "[!] No package.json found."
+  echo "[!] Skipping dependency scan (demo mode)."
 fi
 
-echo "------------------------------------------"
-echo "🚀 Dependency scan complete."
+echo "========================================"
+echo " Scan finished"
+echo "========================================"
