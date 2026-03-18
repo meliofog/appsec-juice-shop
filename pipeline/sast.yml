@@ -16,6 +16,11 @@ jobs:
   semgrep:
     name: Semgrep Analysis
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read       # To checkout the code
+      security-events: write # To upload the SARIF results
+      actions: read        # useful for internal tracking
 
     # Condition: Run if it's not a push, OR if it is a push and doesn't have [skip ci]
     if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
@@ -29,10 +34,6 @@ jobs:
         with:
           node-version: '20'
 
-      # Optional: Only keep if the scan requires type-checking/deep analysis
-      # - name: Install dependencies
-      #   run: npm install --package-lock-only 
-
       - name: Run Semgrep (SAST)
         uses: semgrep/semgrep-action@v1
         with:
@@ -44,7 +45,7 @@ jobs:
           generateSarif: "1"
 
       - name: Upload SARIF results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always() # Ensure results upload even if vulnerabilities are found
+        uses: github/codeql-action/upload-sarif@v4  
+        if: always()
         with:
           sarif_file: semgrep.sarif
