@@ -84,9 +84,7 @@ appsec-juice-shop-project/
 
 │
 
-├── exploits/ # Vulnerability write-ups
-
-├── fixes/ # Secure coding fixes
+├── exploits/ # Vulnerability write-ups + Secure coding fixes
 
 ├── docs/ # Screenshots \& supporting material
 
