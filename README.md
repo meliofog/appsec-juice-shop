@@ -51,9 +51,10 @@ For each vulnerability, the following process is applied:
 ```text
 appsec-juice-shop-project/
 │
-├── exploits/   # Vulnerability write-ups + Secure coding fixes
-├── docs/       # Screenshots & supporting material
-├── pipeline/   # Secure SDLC (CI/CD, SAST, etc.)
+├── .github/workflows/  # Active CI/CD Pipeline (GitHub Actions)
+├── pipeline/           # Pipeline documentation & configuration copies
+├── exploits/           # Vulnerability write-ups + Secure coding fixes
+├── docs/               # Screenshots & supporting material
 └── README.md
 ```
 
